@@ -4,6 +4,10 @@ import Link from 'next/link';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { createClient } from '@/utils/supabase/server';
+import { Bell } from 'lucide-react';
+import { Popover, PopoverTrigger } from './ui/popover';
+import { PopoverContent } from '@radix-ui/react-popover';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 export default async function AuthButton({ showRoutes = true }) {
   // Added prop
@@ -17,13 +21,8 @@ export default async function AuthButton({ showRoutes = true }) {
     return (
       <>
         <div className="flex gap-4 items-center">
-          <div>
-            <Badge variant={'default'} className="font-normal pointer-events-none">
-              Please update .env.local file with anon key and url
-            </Badge>
-          </div>
           <div className="flex gap-2">
-            <Button asChild size="sm" variant={'outline'} disabled className="opacity-75 cursor-none pointer-events-none">
+            <Button asChild size="sm" variant={'ghost'} disabled className="opacity-75 cursor-none pointer-events-none">
               <Link href="/sign-in">Sign in</Link>
             </Button>
             <Button asChild size="sm" variant={'default'} disabled className="opacity-75 cursor-none pointer-events-none">
@@ -37,29 +36,71 @@ export default async function AuthButton({ showRoutes = true }) {
 
   if (user) {
     return (
-      <div className="flex items-center lg:gap-72">
+      <div className="flex items-center lg:gap-96">
         {showRoutes && ( // Conditional rendering of routes
           <div className="flex items-center gap-5 font-semibold text-xl">
-            <Link href={'/home'}>Home</Link>
-            <Link href={'/about'}>About</Link>
-            <Link href={'/contact'}>Contact</Link>
+            <Link className="hover:text-primary" href={'/home'}>
+              Home
+            </Link>
+            <Link className="hover:text-primary" href={'/pemesanan'}>
+              Pemesanan
+            </Link>
+            <Link className="hover:text-primary" href={'/riwayat'}>
+              Riwayat
+            </Link>
           </div>
         )}
         <div className="flex flex-row items-center gap-2">
           {' '}
-          Hey, {user.email}!
-          <form action={signOutAction}>
-            <Button type="submit" variant={'outline'}>
-              Sign out
-            </Button>
-          </form>
+          <Popover>
+            <PopoverTrigger className=" rounded-full p-2 hover:bg-slate-100 shadow-xl">
+              <Bell size={20} className="text-primary" />
+            </PopoverTrigger>
+            <PopoverContent className="w-100 bg-[#FEFEFE] p-5 rounded-md shadow-lg ">
+              <div className="flex flex-col">
+                <h1 className="text-xl font-bold">Notifikasi</h1>
+                <div className="flex flex-col bg-white shadow-xl rounded-md p-4 space-y-2">
+                  <div className="flex flex-row gap-4">
+                    <p>23 Maret 2025 - 14.39</p>
+                    <p className="text-primary gap-4">#alkdflkasjdfkljfdsal</p>
+                  </div>
+                  <div className="flex flex-row gap-6">
+                    <p className="text-[#878787]">Status</p>
+                    <p>Berhasil</p>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="rounded-full p-2 hover:bg-slate-100 shadow-xl">RA</DropdownMenuTrigger>
+            <DropdownMenuContent className="p-4">
+              <div className="flex flex-row">
+                <div className="flex flex-col">
+                  <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
+                  <DropdownMenuLabel>Ramadhika Darmaputra</DropdownMenuLabel>
+                </div>
+              </div>
+              <DropdownMenuItem>Pusat Akun</DropdownMenuItem>
+              <DropdownMenuItem>Bantuan</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                {' '}
+                <form action={signOutAction}>
+                  <Button type="submit" variant={'ghost'}>
+                    Sign out
+                  </Button>
+                </form>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     );
   } else {
     return (
-      <div className="flex gap-2">
-        <Button asChild size="sm" variant={'outline'}>
+      <div className="flex gap-3">
+        <Button asChild size="sm" variant={'ghost'}>
           <Link href="/sign-in">Sign in</Link>
         </Button>
         <Button asChild size="sm" variant={'default'}>
