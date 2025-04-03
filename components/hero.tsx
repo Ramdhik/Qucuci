@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { CircleCheck } from 'lucide-react';
+import { Button } from './ui/button';
 
 export default function Hero() {
   return (
@@ -33,7 +34,9 @@ export default function Hero() {
           </div>
 
           {/* Tombol Contact */}
-          <button className="px-8 py-3 text-lg font-bold text-white transition duration-300 bg-blue-400 rounded-full hover:bg-blue-500">Our Contact</button>
+          <Button variant="outline" className="px-8 py-3 text-lg font-bold transition duration-300 rounded-xl">
+            Our Contact
+          </Button>
         </div>
       </div>
       {/* Kotak Fitur (di luar container Hero) */}

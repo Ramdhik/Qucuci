@@ -37,7 +37,7 @@ export default function RootLayout({
                   <Image src="/logo.png" alt="Logo" width={200} height={200} style={{ cursor: 'pointer' }} />
                 </Link>
                 <div className="flex items-center gap-4">
-                  <HeaderAuth /> {/* Komponen untuk login/logout */}
+                  <HeaderAuth />
                 </div>
               </div>
             </nav>
