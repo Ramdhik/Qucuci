@@ -16,6 +16,13 @@ export default async function AuthButton({ showRoutes = true }) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((word) => word[0].toUpperCase())
+      .join('')
+      .slice(0, 2);
+  };
 
   if (!hasEnvVars) {
     return (
@@ -73,12 +80,12 @@ export default async function AuthButton({ showRoutes = true }) {
             </PopoverContent>
           </Popover>
           <DropdownMenu>
-            <DropdownMenuTrigger className="rounded-full p-2 hover:bg-slate-100 shadow-xl">RA</DropdownMenuTrigger>
+            <DropdownMenuTrigger className="rounded-full p-2 hover:bg-slate-100 shadow-xl">{getInitials(user?.user_metadata?.name || 'Unknown')}</DropdownMenuTrigger>
             <DropdownMenuContent className="p-4">
               <div className="flex flex-row">
                 <div className="flex flex-col">
                   <DropdownMenuLabel>{user?.email}</DropdownMenuLabel>
-                  <DropdownMenuLabel>Ramadhika Darmaputra</DropdownMenuLabel>
+                  <DropdownMenuLabel>{user?.user_metadata?.name}</DropdownMenuLabel>
                 </div>
               </div>
               <DropdownMenuItem>Pusat Akun</DropdownMenuItem>
