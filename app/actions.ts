@@ -17,7 +17,7 @@ export const signUpAction = async (formData: FormData) => {
     return encodedRedirect('error', '/sign-up', 'Email, password, name, and phone are required');
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -32,9 +32,26 @@ export const signUpAction = async (formData: FormData) => {
   if (error) {
     console.error(error.code + ' ' + error.message);
     return encodedRedirect('error', '/sign-up', error.message);
-  } else {
-    return encodedRedirect('success', '/sign-up', 'Thanks for signing up! Please check your email for a verification link.');
   }
+
+  if (data?.user) {
+    const { error: insertError } = await supabase.from('Pengguna').insert([
+      {
+        id_user: data.user.id,
+        nama: name,
+        email: email,
+        no_hp: phone,
+        password: password,
+      },
+    ]);
+
+    if (insertError) {
+      console.error('Insert Pengguna Error:', insertError.message);
+      return encodedRedirect('error', '/sign-up', 'Sign up berhasil, tapi gagal menyimpan data pengguna.');
+    }
+  }
+
+  return encodedRedirect('success', '/sign-up', 'Thanks for signing up! Please check your email for a verification link.');
 };
 
 export const signInAction = async (formData: FormData) => {
