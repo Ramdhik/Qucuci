@@ -27,7 +27,7 @@ export default function Hero() {
               </span>{' '}
               Affordable
             </p>
-            <h1 className="text-2xl font-semibold md:text-5xl lg:text-5xl mb-7">Layanan Antar & Jemput Laundry</h1>
+            <h1 className="text-2xl font-semibold md:text-5xl lg:text-5xl mb-7 text-center">Layanan Antar & Jemput Laundry</h1>
             <h2 className="mb-8 text-4xl font-semibold md:text-3xl lg:text-5xl">
               Untuk Kamu - <span className="text-[#00C6FF]">Cepat, Bersih, & Wangi!</span>
             </h2>
@@ -40,7 +40,7 @@ export default function Hero() {
         </div>
       </div>
       {/* Kotak Fitur (di luar container Hero) */}
-      <div className="absolute  z-10 -mt-14  mx-40 max-w-7xl">
+      <div className="absolute z-10 -mt-14  mx-40 max-w-7xl">
         <div className="container grid grid-cols-1 gap-8 mx-auto bg-white shadow-lg md:grid-cols-3 rounded-3xl">
           {/* Proses Cepat */}
           <div className="flex flex-row items-center justify-center p-5 text-start ">

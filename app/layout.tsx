@@ -31,7 +31,7 @@ export default function RootLayout({
         <main className="min-h-screen flex flex-col items-center">
           <div className="flex-1 w-full flex flex-col items-center">
             {/* Navbar */}
-            <nav className="w-full flex justify-center border-b border-b-foreground/10 sticky top-0 bg-background z-10">
+            <nav className="w-full flex justify-center sticky top-0 bg-background z-10 rounded-b-lg">
               <div className="w-full flex justify-between items-center p-3 px-5 text-sm">
                 <Link href="/home">
                   <Image src="/logo.png" alt="Logo" width={200} height={200} style={{ cursor: 'pointer' }} />
@@ -43,7 +43,7 @@ export default function RootLayout({
             </nav>
 
             {/* Page Content */}
-            <div className="w-full">{children}</div>
+            <div className="w-full ">{children}</div>
 
             {/* Footer */}
             <Footer />
