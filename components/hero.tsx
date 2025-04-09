@@ -34,7 +34,7 @@ export default function Hero() {
           </div>
 
           {/* Tombol Contact */}
-          <Button variant="outline" className="px-8 py-3 text-lg font-bold transition duration-300 rounded-xl">
+          <Button variant="outline" className="px-8 py-3 text-lg font-bold transition duration-300 rounded-xl bg bg-none">
             Our Contact
           </Button>
         </div>
