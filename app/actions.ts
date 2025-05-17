@@ -45,6 +45,10 @@ export const signInAction = async (formData: FormData) => {
     return encodedRedirect('error', '/sign-in', error.message);
   }
 
+  if (email === 'qucuciid@gmail.com') {
+    return redirect('/admin/dashboard'); 
+  }
+
   return redirect('/home');
 };
 
