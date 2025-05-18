@@ -30,6 +30,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
     alamat_penjemputan: '',
     tanggal_pesanan: '',
     total_harga: '', // Keep this state for calculation and display
+    no_telepon: '',
   });
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
@@ -121,6 +122,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
       ...newOrderData,
       metode_pembayaran: selectedPaymentMethod, // Use the selected state here
       total_harga: parsedTotalHarga,
+      no_telepon: phoneNumber, // Update no_telepon with phoneNumber
       // If phoneNumber needs to be sent, update OrderData type and pass it
       // phoneNumber: phoneNumber,
     };
@@ -135,6 +137,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
         alamat_penjemputan: '',
         tanggal_pesanan: '',
         total_harga: '',
+        no_telepon: '',
       });
       setSelectedPaymentMethod('');
       setPhoneNumber('');
