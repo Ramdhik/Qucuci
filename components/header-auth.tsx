@@ -48,7 +48,7 @@ export default async function AuthButton({ showRoutes = true }) {
           <img src={DEFAULT_LOGO_SRC} alt="Profile" className="w-auto h-10 rounded-full" />
         </div>
         {showRoutes && ( // Conditional rendering of routes
-          <div className="flex items-center gap-5 font-semibold text-xl">
+          <div className="flex items-center gap-5 font-medium text-xl text-gray-500">
             <Link className="hover:text-primary" href={'/home'}>
               Home
             </Link>
