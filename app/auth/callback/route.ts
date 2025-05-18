@@ -1,25 +1,14 @@
-<<<<<<< HEAD
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
-=======
-import { createClient } from '@/utils/supabase/server';
-import { NextResponse } from 'next/server';
->>>>>>> 4ca9800a269b44a5df141132886f3cac937cf862
 
 export async function GET(request: Request) {
   // The `/auth/callback` route is required for the server-side auth flow implemented
   // by the SSR package. It exchanges an auth code for the user's session.
   // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url);
-<<<<<<< HEAD
   const code = requestUrl.searchParams.get("code");
   const origin = requestUrl.origin;
   const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString();
-=======
-  const code = requestUrl.searchParams.get('code');
-  const origin = requestUrl.origin;
-  const redirectTo = requestUrl.searchParams.get('redirect_to')?.toString();
->>>>>>> 4ca9800a269b44a5df141132886f3cac937cf862
 
   if (code) {
     const supabase = await createClient();
