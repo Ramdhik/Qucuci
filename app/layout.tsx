@@ -36,7 +36,8 @@ export default function RootLayout({
         {/* Main Content Area (will take all available space) */}
         {/* This div now wraps ONLY the children and has flex-grow */}
         <main className="relative flex-grow w-full flex flex-col items-center">
-          <img src="/accent.png" alt="Logo" className="w-auto object-contain absolute left-0 -z-50" /> {/* flex-grow and w-full for the main content area */}
+          <img src="/accent.png" alt="Logo" className="w-auto object-contain absolute left-0 -z-50" />
+
           {children}
         </main>
 

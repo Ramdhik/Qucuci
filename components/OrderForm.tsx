@@ -1,15 +1,15 @@
 // components/OrderForm.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react'; // Import useMemo
 import useSession from '@/hooks/useSession';
 import useCreateOrder from '@/hooks/useCreateOrder';
+import usePriceCalculation from '@/hooks/usePriceCalculation';
 import { OrderData } from '@/types';
 import { useRouter } from 'next/navigation';
-import { Shirt, MapPin, Calendar, Phone, DollarSign, Clock } from 'lucide-react'; // Banknote icon removed
+import { Shirt, MapPin, Calendar, Phone, DollarSign, Clock } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
-// Remove this incorrect import: import setInsertError from '@/hooks/useCreateOrder';
 
 interface OrderFormProps {
   onOrderCreated?: () => void;
@@ -17,80 +17,52 @@ interface OrderFormProps {
 
 const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
   const session = useSession();
-  // Destructure setInsertError from the hook
   const { loading, insertError, createOrder, setInsertError } = useCreateOrder();
   const router = useRouter();
+  const { calculatePrice, formatRupiah } = usePriceCalculation();
 
-  const PRICE_PER_KG = 5000;
-
-  const [newOrderData, setNewOrderData] = useState<OrderData>({
-    jenis_layanan: 'Normal',
+  // Pisahkan state input dari state hasil perhitungan
+  const [orderInputData, setOrderInputData] = useState({
+    jenis_layanan: 'Normal' as 'Normal' | 'Instant', // Explicitly type for clarity
     berat_pakaian: '',
-    metode_pembayaran: '', // Keep this state for backend
     alamat_penjemputan: '',
     tanggal_pesanan: '',
-    total_harga: '', // Keep this state for calculation and display
-    no_telepon: '',
+    // no_telepon akan dikelola di state phoneNumber terpisah
   });
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
 
-  // Helper function to format number as Indonesian Rupiah
-  const formatRupiah = (number: number | string): string => {
-    const num = typeof number === 'string' ? parseFloat(number) : number;
-    if (isNaN(num)) {
-      return '';
-    }
-    const formatter = new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    });
-    return formatter.format(num);
-  };
+  // Gunakan useMemo untuk menghitung total harga
+  // totalHarga akan diperbarui hanya ketika berat_pakaian atau jenis_layanan berubah
+  const totalHarga = useMemo(() => {
+    return calculatePrice(orderInputData.berat_pakaian, orderInputData.jenis_layanan);
+  }, [orderInputData.berat_pakaian, orderInputData.jenis_layanan, calculatePrice]); // Dependensi useMemo
+
+  // Hilangkan useEffect yang sebelumnya memperbarui total_harga state
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { id, value } = e.target;
 
     if (id === 'phone_number') {
       setPhoneNumber(value);
-    } else if (id === 'berat_pakaian') {
-      const weight = parseFloat(value);
-      let calculatedPrice = '';
-
-      if (!isNaN(weight) && weight > 0) {
-        calculatedPrice = (weight * PRICE_PER_KG).toString();
-      }
-
-      setNewOrderData({
-        ...newOrderData,
-        berat_pakaian: value,
-        total_harga: calculatedPrice,
-      });
     } else {
-      setNewOrderData({ ...newOrderData, [id]: value });
+      // Perbarui state input data
+      setOrderInputData({ ...orderInputData, [id]: value });
     }
   };
 
   const handleServiceTypeChange = (type: 'Normal' | 'Instant') => {
-    const currentWeight = parseFloat(newOrderData.berat_pakaian as string);
-    let calculatedPrice = '';
-    if (!isNaN(currentWeight) && currentWeight > 0) {
-      calculatedPrice = (currentWeight * PRICE_PER_KG).toString();
-    }
-
-    setNewOrderData({
-      ...newOrderData,
+    // Perbarui state input data
+    setOrderInputData((prevData) => ({
+      ...prevData,
       jenis_layanan: type,
-      total_harga: calculatedPrice,
-    });
+    }));
+    // useMemo akan otomatis menghitung ulang totalHarga
   };
 
   const handlePaymentMethodSelect = (method: string) => {
     setSelectedPaymentMethod(method);
-    // newOrderData.metode_pembayaran will be updated in handleSubmitOrder
   };
 
   const handleSubmitOrder = async () => {
@@ -101,9 +73,8 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
       return;
     }
 
-    const parsedTotalHarga = parseFloat(newOrderData.total_harga as string);
-
-    if (isNaN(parsedTotalHarga) || parsedTotalHarga <= 0) {
+    // Gunakan nilai totalHarga yang dihitung dari useMemo
+    if (isNaN(totalHarga) || totalHarga <= 0) {
       setInsertError('Total harga tidak valid. Masukkan berat pakaian.');
       return;
     }
@@ -112,32 +83,33 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
       setInsertError('Pilih metode pembayaran.');
       return;
     }
-    // Add other required fields validation if necessary
-    if (!newOrderData.jenis_layanan || !newOrderData.berat_pakaian || !newOrderData.alamat_penjemputan.trim() || !newOrderData.tanggal_pesanan || !phoneNumber.trim()) {
+
+    // Add other required fields validation
+    if (!orderInputData.jenis_layanan || !orderInputData.berat_pakaian || !orderInputData.alamat_penjemputan.trim() || !orderInputData.tanggal_pesanan || !phoneNumber.trim()) {
       setInsertError('Semua field harus diisi.');
       return;
     }
 
     const orderDataToSend: OrderData = {
-      ...newOrderData,
-      metode_pembayaran: selectedPaymentMethod, // Use the selected state here
-      total_harga: parsedTotalHarga,
-      no_telepon: phoneNumber, // Update no_telepon with phoneNumber
-      // If phoneNumber needs to be sent, update OrderData type and pass it
-      // phoneNumber: phoneNumber,
+      // Gunakan nilai dari state inputData dan state terpisah lainnya
+      jenis_layanan: orderInputData.jenis_layanan,
+      berat_pakaian: orderInputData.berat_pakaian,
+      metode_pembayaran: selectedPaymentMethod,
+      alamat_penjemputan: orderInputData.alamat_penjemputan,
+      tanggal_pesanan: orderInputData.tanggal_pesanan,
+      total_harga: totalHarga, // Kirim nilai totalHarga yang dihitung
+      no_telepon: phoneNumber,
     };
 
     const createdOrderId = await createOrder(orderDataToSend, userId);
 
     if (createdOrderId) {
-      setNewOrderData({
+      // Reset state input data dan state terpisah lainnya
+      setOrderInputData({
         jenis_layanan: 'Normal',
         berat_pakaian: '',
-        metode_pembayaran: '', // Resetting, will be set on next selection
         alamat_penjemputan: '',
         tanggal_pesanan: '',
-        total_harga: '',
-        no_telepon: '',
       });
       setSelectedPaymentMethod('');
       setPhoneNumber('');
@@ -151,30 +123,25 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
 
   const isFormDisabled = loading || !session?.user?.id;
 
+  // Logika disabled button menggunakan nilai dari state inputData dan totalHarga
   const isSubmitDisabled =
     isFormDisabled ||
-    !newOrderData.jenis_layanan ||
-    newOrderData.berat_pakaian === '' ||
-    isNaN(parseFloat(newOrderData.berat_pakaian as string)) ||
-    parseFloat(newOrderData.berat_pakaian as string) <= 0 ||
-    !selectedPaymentMethod || // Check if a payment method is selected
-    !newOrderData.alamat_penjemputan.trim() ||
-    !newOrderData.tanggal_pesanan ||
+    !orderInputData.jenis_layanan ||
+    orderInputData.berat_pakaian === '' ||
+    isNaN(parseFloat(orderInputData.berat_pakaian as string)) ||
+    parseFloat(orderInputData.berat_pakaian as string) <= 0 ||
+    !selectedPaymentMethod ||
+    !orderInputData.alamat_penjemputan.trim() ||
+    !orderInputData.tanggal_pesanan ||
     !phoneNumber.trim() ||
-    // Check if the calculated total_harga is valid and positive
-    newOrderData.total_harga === '' ||
-    isNaN(parseFloat(newOrderData.total_harga as string)) ||
-    parseFloat(newOrderData.total_harga as string) <= 0;
+    isNaN(totalHarga) || // Cek nilai totalHarga yang dihitung
+    totalHarga <= 0;
 
   return (
-    // Wrap the two cards in a Fragment
-    <div className="flex lg:flex-row md:flex-row flex-col">
+    <div className="flex flex-col lg:flex-row md:flex-row">
       {/* Left Card: Form Pengisian */}
-      <div key="order-form-card" className="rounded-lg border lg:ml-40 mt-10 mb-10 border-gray-200 p-6 shadow-lg  lg:w-2/3 bg-white">
-        {/* ... content of the left card ... */}
+      <div key="order-form-card" className="mb-10 ml-40 mt-10 w-2/3 rounded-lg border border-gray-200 bg-white p-6 shadow-lg lg:ml-40">
         <h2 className="mb-6 text-2xl font-bold text-primary">Form Pengisian</h2>
-
-        {/* ... rest of the left card content (Jenis Layanan, Berat, Alamat, Info Kontak, Tanggal/Waktu, Metode Bayar, Terms, Errors) ... */}
 
         {/* Pilih Jenis Layanan */}
         <div className="mb-6">
@@ -183,23 +150,23 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
             <button
               type="button"
               onClick={() => handleServiceTypeChange('Normal')}
-              className={`flex-1 rounded-md border px-6 py-3 text-center font-medium transition ${newOrderData.jenis_layanan === 'Normal' ? 'border-primary text-primary' : 'border-gray-300 text-gray-700 hover:border-gray-400'}`}
+              className={`flex-1 rounded-md border px-6 py-3 text-center font-medium transition ${orderInputData.jenis_layanan === 'Normal' ? 'border-primary text-primary' : 'border-gray-300 text-gray-700 hover:border-gray-400'}`}
               disabled={isFormDisabled}
             >
               Normal
               <p className="mt-1 text-sm text-gray-500">
-                <Calendar className="inline mb-1 mr-1 size-4" /> 2-3 hari
+                <Calendar className="mb-1 mr-1 inline size-4" /> 3 - 4 hari
               </p>
             </button>
             <button
               type="button"
               onClick={() => handleServiceTypeChange('Instant')}
-              className={`flex-1 rounded-md border px-6 py-3 text-center font-medium transition ${newOrderData.jenis_layanan === 'Instant' ? 'border-primary text-primary' : 'border-gray-300 text-gray-700 hover:border-gray-400'}`}
+              className={`flex-1 rounded-md border px-6 py-3 text-center font-medium transition ${orderInputData.jenis_layanan === 'Instant' ? 'border-primary text-primary' : 'border-gray-300 text-gray-700 hover:border-gray-400'}`}
               disabled={isFormDisabled}
             >
               Instant
               <p className="mt-1 text-sm text-gray-500">
-                <Clock className="inline mr-1 size-4" /> 3-4 jam
+                <Clock className="mr-1 inline size-4" /> 2 hari
               </p>
             </button>
           </div>
@@ -214,7 +181,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
               id="berat_pakaian"
               type="number"
               step="0.1"
-              value={newOrderData.berat_pakaian}
+              value={orderInputData.berat_pakaian}
               onChange={handleInputChange}
               placeholder="Masukkan berat / jumlah pakaian Anda"
               className="w-full rounded-md border border-gray-300 py-3 pl-10 pr-16 text-gray-700 placeholder-gray-400 focus:border-primary focus:ring-primary"
@@ -232,7 +199,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
             <input
               id="alamat_penjemputan"
               type="text"
-              value={newOrderData.alamat_penjemputan}
+              value={orderInputData.alamat_penjemputan}
               onChange={handleInputChange}
               placeholder="Masukkan Alamat Anda"
               className="w-full rounded-md border border-gray-300 py-3 pl-10 pr-3 text-gray-700 placeholder-gray-400 focus:border-primary focus:ring-primary"
@@ -259,15 +226,13 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
         </div>
         {/* Tanggal & Waktu Penjemputan */}
         <div className="mb-6">
-          {' '}
-          {/* mb-6 instead of mt-4 for consistent spacing */}
           <h3 className="mb-3 text-lg font-semibold text-gray-700">Tanggal & Waktu Penjemputan</h3>
           <div className="relative flex items-center">
             <Calendar size={20} className="absolute left-3 text-gray-400" />
             <input
               id="tanggal_pesanan"
               type="datetime-local"
-              value={newOrderData.tanggal_pesanan}
+              value={orderInputData.tanggal_pesanan}
               onChange={handleInputChange}
               className="w-full rounded-md border border-gray-300 py-3 pl-10 pr-3 text-gray-700 focus:border-primary focus:ring-primary"
               disabled={isFormDisabled}
@@ -275,7 +240,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
           </div>
         </div>
 
-        {/* Pilih Metode Bayar - Dipindahkan ke sini di card kiri */}
+        {/* Pilih Metode Bayar */}
         <div className="mb-6">
           <h3 className="mb-3 text-lg font-semibold text-gray-700">Pilih Metode Bayar</h3>
           <p className="mb-3 text-sm text-gray-500">Virtual Account</p>
@@ -315,13 +280,13 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
               disabled={isFormDisabled}
             >
               <h1 className="text-2xl font-bold">
-                <img src="/money.png" alt="Cash" className="mr-1 h-10 inline-flex" /> Cash
+                <img src="/money.png" alt="Cash" className="mr-1 inline-flex h-10" /> Cash
               </h1>
             </button>
           </div>
         </div>
 
-        {/* Terms and Conditions - Dipindahkan ke card kiri juga */}
+        {/* Terms and Conditions */}
         <p className="mt-4 text-center text-sm text-gray-600">
           Dengan melanjutkan, kamu menyetujui{' '}
           <Link href="/terms" className="text-primary hover:underline">
@@ -330,32 +295,33 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
           yang berlaku.
         </p>
 
-        {/* Error and Not Logged In Messages - Dipindahkan ke card kiri */}
+        {/* Error and Not Logged In Messages */}
         {insertError && <p className="mt-4 text-red-500">{insertError}</p>}
         {!session?.user?.id && <p className="mt-4 text-orange-500">Silakan masuk untuk membuat pesanan.</p>}
       </div>
 
-      <div key="order-summary-card" className="rounded-lg border border-gray-200 p-6 shadow-md mb-10 lg:ml-8 lg:mt-10 self-start md:sticky md:top-8 md:w-1/3 w-[100%] md:mt-10 md:ml-5">
+      {/* Right Card: Order Summary (with sticky positioning) */}
+      <div key="order-summary-card" className="mb-10 w-[100%] self-start rounded-lg border border-gray-200 p-6 shadow-md md:ml-5 md:mt-10 md:sticky md:top-8 md:w-1/3 lg:ml-8 lg:mt-10">
         <div className="mb-6">
           <h3 className="mb-3 text-lg font-semibold text-gray-700">Total Harga</h3>
           <div className="relative flex items-center">
             <input
               id="total_harga_display"
               type="text"
-              value={formatRupiah(newOrderData.total_harga)}
+              value={formatRupiah(totalHarga)} // Tampilkan nilai totalHarga dari useMemo
               readOnly
               placeholder="Harga"
-              className="w-full rounded-md border border-gray-300 py-3 pl-4 pr-3 text-gray-700 placeholder-gray-400 bg-gray-100 cursor-not-allowed text-lg font-bold"
-              disabled={isFormDisabled}
+              className="w-full cursor-not-allowed rounded-md border border-gray-300 bg-gray-100 py-3 pl-4 pr-3 text-lg font-bold text-gray-700 placeholder-gray-400"
+              disabled
             />
           </div>
         </div>
-        {/* Submit Button menggunakan komponen Button Shadcn UI */}
+        {/* Submit Button */}
         <Button type="button" onClick={handleSubmitOrder} disabled={isSubmitDisabled} className={`w-full py-3 text-lg font-semibold ${isSubmitDisabled ? 'cursor-not-allowed opacity-50' : ''}`}>
           {loading ? 'Memproses...' : 'Bayar Sekarang'}
         </Button>
       </div>
-    </div> // Close the Fragment
+    </div>
   );
 };
 
