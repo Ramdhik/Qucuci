@@ -29,9 +29,8 @@ const PaymentDetails: React.FC<PaymentDetailsProps> = ({ paymentData, loading, e
   };
 
   return (
-    <div className="w-full max-w-lg mt-8">
+    <div className="w-1/2 mt-8">
       {' '}
-      <h2 className="mb-4 text-xl font-bold text-gray-800 text-center">Payment Details:</h2>
       {loading ? (
         <p className="text-gray-600 text-center">Loading payment details...</p>
       ) : error ? (

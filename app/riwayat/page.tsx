@@ -14,7 +14,7 @@ export default function RiwayatPage() {
   const isLoggedIn = !!userId;
 
   return (
-    <div className="flex flex-col items-center py-8">
+    <div className="flex flex-col items-center mt-12 lg:mt-36">
       <RiwayatList riwayat={riwayat} loading={loading} error={error} isLoggedIn={isLoggedIn} />
       {/* SessionDisplay component removed for brevity, add back if needed */}
     </div>

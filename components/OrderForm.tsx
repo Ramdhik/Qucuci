@@ -165,9 +165,9 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
 
   return (
     // Wrap the two cards in a Fragment
-    <div className="flex flex-row">
+    <div className="flex lg:flex-row md:flex-row flex-col">
       {/* Left Card: Form Pengisian */}
-      <div key="order-form-card" className="rounded-lg border ml-40 mt-10 mb-10 border-gray-200 p-6 shadow-lg w-full md:w-1/2 lg:w-2/3">
+      <div key="order-form-card" className="rounded-lg border lg:ml-40 mt-10 mb-10 border-gray-200 p-6 shadow-lg  lg:w-2/3 bg-white">
         {/* ... content of the left card ... */}
         <h2 className="mb-6 text-2xl font-bold text-primary">Form Pengisian</h2>
 
@@ -332,7 +332,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
         {!session?.user?.id && <p className="mt-4 text-orange-500">Silakan masuk untuk membuat pesanan.</p>}
       </div>
 
-      <div key="order-summary-card" className="rounded-lg border border-gray-200 p-6 shadow-md ml-8 mt-10 self-start md:sticky md:top-8">
+      <div key="order-summary-card" className="rounded-lg border border-gray-200 p-6 shadow-md mb-10 lg:ml-8 lg:mt-10 self-start md:sticky md:top-8 md:w-1/3 w-[100%] md:mt-10 md:ml-5">
         <div className="mb-6">
           <h3 className="mb-3 text-lg font-semibold text-gray-700">Total Harga</h3>
           <div className="relative flex items-center">
@@ -341,7 +341,7 @@ const OrderForm: React.FC<OrderFormProps> = ({ onOrderCreated }) => {
               type="text"
               value={formatRupiah(newOrderData.total_harga)}
               readOnly
-              placeholder="Harga "
+              placeholder="Harga"
               className="w-full rounded-md border border-gray-300 py-3 pl-4 pr-3 text-gray-700 placeholder-gray-400 bg-gray-100 cursor-not-allowed text-lg font-bold"
               disabled={isFormDisabled}
             />

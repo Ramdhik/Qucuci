@@ -41,7 +41,6 @@ export default function RootLayout({
         </main>
 
         {/* Footer (will take 'auto' height) */}
-        <Footer />
       </body>
     </html>
   );
