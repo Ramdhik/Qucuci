@@ -51,6 +51,7 @@ const useCreateOrder = (): CreateOrderResult => {
       alamat_penjemputan: orderData.alamat_penjemputan.trim(),
       tanggal_pesanan: orderData.tanggal_pesanan,
       total_harga: parsedTotalHarga,
+      no_telepon: orderData.no_telepon,
       // Include phone number here if it's part of your OrderData type
       // phone_number: (orderData as any).phoneNumber,
     };
@@ -105,6 +106,11 @@ const useCreateOrder = (): CreateOrderResult => {
       id_user: userId,
       status_transaksi: 'Order Created', // Initial status
       tanggal_transaksi: new Date().toISOString(),
+      jenis_layanan: orderData.jenis_layanan.trim(),
+      berat_pakaian: parsedBeratPakaian,
+      alamat_penjemputan: orderData.alamat_penjemputan.trim(),
+      no_telepon: orderData.no_telepon,
+      jumlah_pembayaran: parsedTotalHarga,
     };
 
     const { error: riwayatError } = await supabase.from('Riwayat').insert([riwayatToInsert]);

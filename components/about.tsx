@@ -4,7 +4,7 @@ export default function About() {
   return (
     <div className="relative h-[70vh] ">
       {/* Background Image */}
-      <Image src="/bg.png" alt="About Background" layout="fill" objectFit="cover" quality={100} className="absolute inset-0 z-0" />
+      {/* <Image src="/bg.png" alt="About Background" layout="fill" objectFit="cover" quality={100} className="absolute inset-0 z-0" /> */}
       {/* Content Wrapper */}
       <div className="relative flex flex-col items-center justify-center  text-white md:px-20 mt-20">
         {/* <h1 className="text-5xl font-bold text-center text-[#00476A] md:text-left ">About US</h1> */}

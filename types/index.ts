@@ -9,6 +9,7 @@ export interface OrderData {
   alamat_penjemputan: string; // text
   tanggal_pesanan: string; // timestamp without time zone - use string for input value
   total_harga: number | string; // numeric - use string for input value initially
+  no_telepon: number | string; // numeric - Kembali ke number | string
 }
 
 export interface PembayaranData {
@@ -28,4 +29,9 @@ export interface RiwayatData {
   id_user: string; // uuid - from session
   status_transaksi: string; // text
   tanggal_transaksi: string; // timestamp without time zone
+  jenis_layanan: string; // text
+  berat_pakaian: number | string; // numeric - use string for input value initially
+  alamat_penjemputan: string; // text
+  no_telepon: number | string; // numeric - Kembali ke number | string
+  jumlah_pembayaran: number; // numeric
 }
